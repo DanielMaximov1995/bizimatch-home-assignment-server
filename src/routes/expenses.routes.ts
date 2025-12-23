@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getExpenses, updateExpenseCategory } from "../services/expenses.service.js";
+import { getExpenses, updateExpenseCategory, updateExpense, deleteExpense } from "../services/expenses.service.js";
 import { authenticate } from "../middleware/auth.js";
-import { validateQuery, validate, expenseFiltersSchema, updateCategorySchema } from "../utils/validators.js";
+import { validateQuery, validate, expenseFiltersSchema, updateCategorySchema, updateExpenseSchema } from "../utils/validators.js";
 
 const router = Router();
 
@@ -30,6 +30,33 @@ router.patch("/:id/category", validate(updateCategorySchema), async (req, res, n
     res.json({
       success: true,
       data: { expense },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/:id", validate(updateExpenseSchema), async (req, res, next) => {
+  try {
+    const userId = req.user!.userId;
+    const { id } = req.params;
+    const expense = await updateExpense(id, userId, req.validated);
+    res.json({
+      success: true,
+      data: { expense },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const userId = req.user!.userId;
+    const { id } = req.params;
+    await deleteExpense(id, userId);
+    res.json({
+      success: true,
     });
   } catch (error) {
     next(error);

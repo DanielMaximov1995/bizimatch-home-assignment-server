@@ -15,6 +15,18 @@ export const updateCategorySchema = z.object({
   category: z.nativeEnum(ExpenseCategory),
 });
 
+export const updateExpenseSchema = z.object({
+  businessName: z.string().optional().nullable(),
+  businessId: z.string().optional().nullable(),
+  serviceDesc: z.string().optional().nullable(),
+  invoiceNumber: z.string().optional().nullable(),
+  docType: z.enum(["INVOICE", "RECEIPT", "UNKNOWN"]).optional(),
+  amountBeforeVat: z.number().nonnegative().optional(),
+  amountAfterVat: z.number().nonnegative().optional(),
+  transactionDate: z.string().datetime().optional(),
+  category: z.nativeEnum(ExpenseCategory).optional(),
+});
+
 export const expenseFiltersSchema = z.object({
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),

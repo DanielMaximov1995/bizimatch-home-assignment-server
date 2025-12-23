@@ -119,3 +119,62 @@ export const updateExpenseCategory = async (
   return toExpenseDTO(updated);
 };
 
+export const updateExpense = async (
+  expenseId: string,
+  userId: string,
+  data: Partial<ExpenseDTO>
+): Promise<ExpenseDTO> => {
+  const expense = await prisma.expense.findFirst({
+    where: {
+      id: expenseId,
+      userId,
+    },
+  });
+
+  if (!expense) {
+    throw new NotFoundError("Expense not found");
+  }
+
+  const updateData: any = {};
+  if (data.businessName !== undefined) updateData.businessName = data.businessName;
+  if (data.businessId !== undefined) updateData.businessId = data.businessId;
+  if (data.serviceDesc !== undefined) updateData.serviceDesc = data.serviceDesc;
+  if (data.invoiceNumber !== undefined) updateData.invoiceNumber = data.invoiceNumber;
+  if (data.docType !== undefined) updateData.docType = data.docType;
+  if (data.amountBeforeVat !== undefined) updateData.amountBeforeVat = data.amountBeforeVat;
+  if (data.amountAfterVat !== undefined) updateData.amountAfterVat = data.amountAfterVat;
+  if (data.transactionDate !== undefined) updateData.transactionDate = new Date(data.transactionDate);
+  if (data.category !== undefined) updateData.category = data.category;
+
+  const updated = await prisma.expense.update({
+    where: {
+      id: expenseId,
+    },
+    data: updateData,
+  });
+
+  return toExpenseDTO(updated);
+};
+
+export const deleteExpense = async (
+  expenseId: string,
+  userId: string
+): Promise<void> => {
+  const expense = await prisma.expense.findFirst({
+    where: {
+      id: expenseId,
+      userId,
+    },
+  });
+
+  if (!expense) {
+    throw new NotFoundError("Expense not found");
+  }
+
+  await prisma.expense.delete({
+    where: {
+      id: expenseId,
+    },
+  });
+};
+
