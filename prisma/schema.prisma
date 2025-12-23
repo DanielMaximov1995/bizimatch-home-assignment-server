@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocType {
+  INVOICE
+  RECEIPT
+  UNKNOWN
+}
+
+enum ExpenseCategory {
+  CAR
+  FOOD
+  OPERATIONS
+  IT
+  TRAINING
+  OTHER
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  expenses     Expense[]
+
+  @@map("users")
+}
+
+model Expense {
+  id              String          @id @default(uuid())
+  userId          String          @map("user_id")
+  businessName    String?         @map("business_name")
+  businessId      String?         @map("business_id")
+  serviceDesc     String?         @map("service_desc")
+  invoiceNumber   String?         @map("invoice_number")
+  docType         DocType         @default(UNKNOWN) @map("doc_type")
+  amountBeforeVat Float           @map("amount_before_vat")
+  amountAfterVat  Float           @map("amount_after_vat")
+  transactionDate DateTime        @map("transaction_date")
+  category        ExpenseCategory @default(OTHER)
+  rawText         String?         @db.Text @map("raw_text")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, transactionDate])
+  @@index([userId, category])
+  @@index([userId, businessName])
+  @@map("expenses")
+}
+
